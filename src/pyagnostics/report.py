@@ -65,7 +65,7 @@ class LabeledSourceBlock:
             labels_in_line = sorted(labels_in_line, key=lambda label: label.span.start)
 
             yield Segment(
-                f"{str(i+self.start_line).rjust(line_number_max_len)}",
+                f"{str(i + self.start_line).rjust(line_number_max_len)}",
                 style=Style(dim=True),
             )
             yield Segment(" │ ")
