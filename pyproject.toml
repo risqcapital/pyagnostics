@@ -1,26 +1,15 @@
 [build-system]
-requires = ["poetry-core"]
+requires = ['poetry-core (>=2.0,<3.0)']
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
-name = "pyagnostics"
-version = "2.0.2"
-description = ""
-authors = ["RISQ Capital <dev@risqcapital.com>"]
-license = "MIT"
-readme = "README.md"
 packages = [{ include = "pyagnostics", from = "src" }]
 classifiers = []
-keywords = []
+requires-poetry = '>=2.0,<3.0'
 
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/risqcapital/pyagnostics/issues"
 Repository = "https://github.com/risqcapital/pyagnostics"
-
-[tool.poetry.dependencies]
-python = ">= 3.11, < 4"
-rich = ">= 13, < 14"
-
 
 [tool.poetry.group.dev.dependencies]
 ruff = "*"
@@ -46,3 +35,14 @@ extend-select = [
 extend-ignore = [
     "TRY003"
 ]
+[project]
+name = "pyagnostics"
+description = ""
+license = "MIT"
+keywords = []
+version = "2.0.2"
+dynamic = ["classifiers"]
+readme = "README.md"
+authors = [{name = "RISQ Capital", email = "dev@risqcapital.com"}]
+requires-python = '>=3.11,<4'
+dependencies = ['rich (>=13,<14)']
