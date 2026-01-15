@@ -45,4 +45,4 @@ dynamic = ["classifiers"]
 readme = "README.md"
 authors = [{name = "RISQ Capital", email = "dev@risqcapital.com"}]
 requires-python = '>=3.11,<4'
-dependencies = ['rich (>=13,<14)']
+dependencies = ['rich (>=13,<15)']
