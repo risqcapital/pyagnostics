@@ -36,7 +36,7 @@ def main() -> None:
                     ],
                 ) from e
     except DiagnosticError as e:
-        from rich import print
+        from rich import print  # noqa: PLC0415
 
         print(e.with_context("while testing"))
 
