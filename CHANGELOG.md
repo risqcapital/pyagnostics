@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.3](https://github.com/risqcapital/pyagnostics/compare/v2.0.2...v2.0.3) (2026-01-15)
+
+
+### Bug Fixes
+
+* **deps:** bump supported rich major ([#103](https://github.com/risqcapital/pyagnostics/issues/103)) ([7f90e8a](https://github.com/risqcapital/pyagnostics/commit/7f90e8a81851e76c05c1a52f531867c6bf1e6703))
+
 ## [2.0.2](https://github.com/risqcapital/pyagnostics/compare/v2.0.1...v2.0.2) (2024-11-05)
 
 
