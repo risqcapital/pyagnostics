@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.0](https://github.com/risqcapital/pyagnostics/compare/v2.0.3...v2.1.0) (2026-01-15)
+
+
+### Features
+
+* improve source spans and add tests ([#106](https://github.com/risqcapital/pyagnostics/issues/106)) ([0791eab](https://github.com/risqcapital/pyagnostics/commit/0791eab064981a5d2b5474cfb351a2e88879957d))
+
 ## [2.0.3](https://github.com/risqcapital/pyagnostics/compare/v2.0.2...v2.0.3) (2026-01-15)
 
 
