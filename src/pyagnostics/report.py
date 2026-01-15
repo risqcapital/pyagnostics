@@ -35,12 +35,15 @@ class LabeledSourceBlock:
     start_char_index: int = 0
     labels: Sequence[LabeledSpan] = field(default_factory=list)
 
-    def __rich_console__(
+    def __rich_console__(  # noqa: PLR0912, PLR0915
         self: Self, _console: Console, _options: ConsoleOptions
     ) -> RenderResult:
-        lines = self.source.split("\n")
+        plain_lines_with_end = self.source.plain.splitlines(keepends=True)
+        text_lines = list(self.source.split("\n"))
+        if len(text_lines) > len(plain_lines_with_end):
+            text_lines = text_lines[: len(plain_lines_with_end)]
 
-        lines_in_src = len(lines)
+        lines_in_src = len(plain_lines_with_end)
         line_number_max_len = len(str(lines_in_src + self.start_line))
         line_numbers_padding = " " * (line_number_max_len + 1)
 
@@ -52,75 +55,100 @@ class LabeledSourceBlock:
             yield Segment("╭───\n")
 
         src_line_start_index = self.start_char_index
+        available_width = max(1, _options.max_width - (line_number_max_len + 3))
 
-        for i, line in enumerate(lines):
-            labels_in_line = [
-                label
-                for label in self.labels
-                if src_line_start_index
-                <= label.span.start
-                <= src_line_start_index + len(line)
-            ]
-
-            labels_in_line = sorted(labels_in_line, key=lambda label: label.span.start)
-
-            yield Segment(
-                f"{str(i + self.start_line).rjust(line_number_max_len)}",
-                style=Style(dim=True),
+        for i, (line, line_with_end) in enumerate(
+            zip(text_lines, plain_lines_with_end)
+        ):
+            wrapped_lines = line.wrap(
+                _console, width=available_width, overflow="fold", no_wrap=False
             )
-            yield Segment(" │ ")
-            yield line
+            wrapped_lines_list: list[Text] = (
+                list(wrapped_lines) if wrapped_lines else [Text("")]
+            )
 
-            if labels_in_line:
-                for j in range(len(labels_in_line) + 1):
-                    yield Segment(line_numbers_padding)
-                    yield Segment("· ")
+            offset = 0
+            for j, wrapped_line in enumerate(wrapped_lines_list):
+                wrapped_line.end = ""
+                wrapped_plain = wrapped_line.plain
+                segment_len = len(wrapped_plain)
+                segment_start = src_line_start_index + offset
+                segment_end = segment_start + segment_len
 
-                    labels_line_length = 0
+                labels_in_line = [
+                    label
+                    for label in self.labels
+                    if label.span.start < segment_end and label.span.end > segment_start
+                ]
+                labels_in_line = sorted(
+                    labels_in_line, key=lambda label: label.span.start
+                )
 
-                    for k, label in enumerate(
-                        labels_in_line[: len(labels_in_line) - j + 1]
-                    ):
-                        before_len = (
-                            label.span.start - src_line_start_index - labels_line_length
-                        )
-                        # If the label exceeds the line length, truncate it to fit
-                        label_len = min(
-                            label.span.end - label.span.start, len(line) - before_len
-                        )
-                        label_before_middle_len = label_len // 2
-                        label_after_middle_len = label_len - label_before_middle_len - 1
+                line_number = (
+                    f"{str(i + self.start_line).rjust(line_number_max_len)}"
+                    if j == 0
+                    else " " * line_number_max_len
+                )
+                yield Segment(line_number, style=Style(dim=True))
+                yield Segment(" │ ")
+                yield wrapped_line
+                yield Segment.line()
 
-                        style = Style(
-                            color=Color.from_triplet(
-                                DIMMED_MONOKAI.ansi_colors[(k % 7) + 1]
+                if labels_in_line:
+                    for label_row in range(len(labels_in_line) + 1):
+                        yield Segment(line_numbers_padding)
+                        yield Segment("· ")
+
+                        labels_line_length = 0
+
+                        for k, label in enumerate(
+                            labels_in_line[: len(labels_in_line) - label_row + 1]
+                        ):
+                            label_start = max(label.span.start, segment_start)
+                            label_end = min(label.span.end, segment_end)
+                            label_len = max(1, label_end - label_start)
+                            before_len = (
+                                label_start - segment_start - labels_line_length
                             )
-                        )
+                            label_before_middle_len = label_len // 2
+                            label_after_middle_len = (
+                                label_len - label_before_middle_len - 1
+                            )
 
-                        if j == 0:
-                            yield Segment(" " * before_len)
-                            yield Segment("─" * label_before_middle_len, style)
-                            yield Segment("┬", style)
-                            yield Segment("─" * label_after_middle_len, style)
-                        else:
-                            yield Segment(" " * (before_len + label_before_middle_len))
-                            if k == len(labels_in_line) - j:
-                                yield Segment("╰─ ", style)
+                            style = Style(
+                                color=Color.from_triplet(
+                                    DIMMED_MONOKAI.ansi_colors[(k % 7) + 1]
+                                )
+                            )
 
-                                renderable = label.label
-                                if isinstance(label.label, str):
-                                    renderable = Text(label.label, end="")
-
-                                yield Styled(renderable, style)
+                            if label_row == 0:
+                                yield Segment(" " * before_len)
+                                yield Segment("─" * label_before_middle_len, style)
+                                yield Segment("┬", style)
+                                yield Segment("─" * label_after_middle_len, style)
                             else:
-                                yield Segment("│", style)
-                                yield Segment(" " * label_after_middle_len)
+                                yield Segment(
+                                    " " * (before_len + label_before_middle_len)
+                                )
+                                if k == len(labels_in_line) - label_row:
+                                    yield Segment("╰─ ", style)
 
-                        labels_line_length += before_len + label_len
+                                    renderable = label.label
+                                    if isinstance(label.label, str):
+                                        renderable = Text(label.label, end="")
 
-                    yield Segment.line()
+                                    yield Styled(renderable, style)
+                                else:
+                                    yield Segment("│", style)
+                                    yield Segment(" " * label_after_middle_len)
 
-            src_line_start_index += len(line) + 1
+                            labels_line_length += before_len + label_len
+
+                        yield Segment.line()
+
+                offset += segment_len
+
+            src_line_start_index += len(line_with_end)
 
         yield Segment(line_numbers_padding)
         yield Segment("╰───\n")
