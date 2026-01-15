@@ -38,7 +38,7 @@ class LabeledSourceBlock:
     def __rich_console__(
         self: Self, _console: Console, _options: ConsoleOptions
     ) -> RenderResult:
-        lines = self.source.split()
+        lines = self.source.split("\n")
 
         lines_in_src = len(lines)
         line_number_max_len = len(str(lines_in_src + self.start_line))
