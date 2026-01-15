@@ -39,11 +39,6 @@ class InMemorySource(SourceCode):
         context_lines_before: int = 0,
         context_lines_after: int = 0,
     ) -> SpanContents:
-        if context_lines_after != 0 or context_lines_before != 0:
-            raise NotImplementedError(
-                "Context lines are not yet supported in InMemorySource"
-            )
-
         lines = self.source_code.splitlines(keepends=True)
 
         chars_before = 0
@@ -69,12 +64,24 @@ class InMemorySource(SourceCode):
         if end_line_idx is None:
             raise ValueError("Span end is out of bounds")
 
+        context_start = max(0, start_line_idx - context_lines_before)
+        context_end = min(len(lines) - 1, end_line_idx + context_lines_after)
+
+        chars_before_context = sum(len(line) for line in lines[:context_start])
+        chars_before_start = sum(len(line) for line in lines[:start_line_idx])
+        column = span.start - chars_before_start
+        chars_in_lines = sum(
+            len(line) for line in lines[context_start : context_end + 1]
+        )
+
         return InMemorySpanContents(
-            text=Text("".join(lines[start_line_idx : end_line_idx + 1])),
-            span=SourceSpan(chars_before, chars_before + chars_in_lines),
-            line=start_line_idx + 1,
-            column=0,
-            line_count=end_line_idx - start_line_idx,
+            text=Text("".join(lines[context_start : context_end + 1])),
+            span=SourceSpan(
+                chars_before_context, chars_before_context + chars_in_lines
+            ),
+            line=context_start + 1,
+            column=column,
+            line_count=context_end - context_start,
             name=self.name,
         )
 
