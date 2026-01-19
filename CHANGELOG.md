@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.1.0](https://github.com/risqcapital/pyagnostics/compare/v2.0.3...v2.1.0) (2026-01-19)
+
+
+### Features
+
+* improve source spans and add tests ([#106](https://github.com/risqcapital/pyagnostics/issues/106)) ([0791eab](https://github.com/risqcapital/pyagnostics/commit/0791eab064981a5d2b5474cfb351a2e88879957d))
+
+
+### Bug Fixes
+
+* render labels on wrapped lines ([#108](https://github.com/risqcapital/pyagnostics/issues/108)) ([e2e154e](https://github.com/risqcapital/pyagnostics/commit/e2e154ebbf73dc468ddd8b7f9e78e28784885775))
+
 ## [2.0.3](https://github.com/risqcapital/pyagnostics/compare/v2.0.2...v2.0.3) (2026-01-15)
 
 
