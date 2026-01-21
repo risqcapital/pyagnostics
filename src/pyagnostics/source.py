@@ -8,10 +8,11 @@ from rich.text import Text
 from pyagnostics.protocols import (
     SourceCode,
     SourceCodeHighlighter,
+    SourceMap,
     SourceSpan,
     SpanContents,
-    WithSourceCode,
 )
+from pyagnostics.spans import SourceId
 
 
 @dataclass
@@ -77,7 +78,9 @@ class InMemorySource(SourceCode):
         return InMemorySpanContents(
             text=Text("".join(lines[context_start : context_end + 1])),
             span=SourceSpan(
-                chars_before_context, chars_before_context + chars_in_lines
+                chars_before_context,
+                chars_before_context + chars_in_lines,
+                source_id=span.source_id,
             ),
             line=context_start + 1,
             column=column,
@@ -88,12 +91,14 @@ class InMemorySource(SourceCode):
 
 @contextmanager
 def attach_diagnostic_source_code(
-    source_code: SourceCode, highlighter: SourceCodeHighlighter | None = None
-) -> Iterator[None]:
+    source_code: SourceCode,
+    highlighter: SourceCodeHighlighter | None = None,
+    *,
+    source_id: SourceId,
+) -> Iterator[SourceId]:
     try:
-        yield None
+        yield source_id
     except Exception as e:
-        if isinstance(e, WithSourceCode):
-            raise e.with_source_code(source_code, highlighter=highlighter)
-        else:
-            raise
+        if isinstance(e, SourceMap):
+            raise e.add_source(source_id, source_code, highlighter=highlighter)
+        raise

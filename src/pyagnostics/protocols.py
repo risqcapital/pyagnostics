@@ -5,7 +5,7 @@ from rich.console import RenderableType
 from rich.text import Text
 
 from pyagnostics.severity import Severity
-from pyagnostics.spans import LabeledSpan, SourceSpan
+from pyagnostics.spans import LabeledSpan, SourceId, SourceSpan
 
 
 class SpanContents(Protocol):
@@ -56,13 +56,6 @@ class Diagnostic(Protocol):
     def message(self: Self) -> RenderableType | None: ...
 
     @property
-    def source_code(self: Self) -> SourceCode | None: ...
-
-    @property
-    def highlighter(self: Self) -> SourceCodeHighlighter | None:
-        return None
-
-    @property
     def labels(self: Self) -> Sequence[LabeledSpan]: ...
 
     @property
@@ -70,9 +63,15 @@ class Diagnostic(Protocol):
 
 
 @runtime_checkable
-class WithSourceCode(Protocol):
-    def with_source_code(
+class SourceMap(Protocol):
+    def get_source(
         self: Self,
+        source_id: "SourceId",
+    ) -> tuple[SourceCode, SourceCodeHighlighter | None] | None: ...
+
+    def add_source(
+        self: Self,
+        source_id: "SourceId",
         source_code: SourceCode,
         highlighter: SourceCodeHighlighter | None = None,
     ) -> Self: ...
