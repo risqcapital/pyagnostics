@@ -20,8 +20,9 @@ class SourceId:
             value = next(self._counter)
         object.__setattr__(self, "value", value)
 
+    # Unsafe constructor for tests. It's the caller's responsibility to avoid `value` collisions.
     @classmethod
-    def from_value(cls, value: int) -> "SourceId":
+    def unsafe_from_value(cls, value: int) -> "SourceId":
         instance = cls.__new__(cls)
         object.__setattr__(instance, "value", value)
         return instance
