@@ -4,7 +4,7 @@ from rich.console import Console
 from rich.text import Text
 
 from pyagnostics.report import LabeledSourceBlock
-from pyagnostics.spans import LabeledSpan, SourceSpan
+from pyagnostics.spans import LabeledSpan, SourceId, SourceSpan
 
 
 def test_labeled_source_block_preserves_whitespace() -> None:
@@ -20,7 +20,8 @@ def test_labeled_source_block_preserves_whitespace() -> None:
 def test_labeled_source_block_wraps_with_line_numbers() -> None:
     width = 20
     content = "A" * 60
-    label_span = SourceSpan(55, 60)
+    source_id = SourceId()
+    label_span = SourceSpan(55, 60, source_id=source_id)
     console = Console(width=width, record=True)
     block = LabeledSourceBlock(
         Text(content),
@@ -40,7 +41,8 @@ def test_labeled_source_block_wraps_with_line_numbers() -> None:
 def test_labeled_source_block_renders_label_on_wrapped_line() -> None:
     width = 20
     content = "A" * 60
-    label_span = SourceSpan(55, 60)
+    source_id = SourceId()
+    label_span = SourceSpan(55, 60, source_id=source_id)
     console = Console(width=width, record=True)
     block = LabeledSourceBlock(
         Text(content),
