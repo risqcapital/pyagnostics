@@ -1,5 +1,21 @@
 # Changelog
 
+## [3.0.0](https://github.com/risqcapital/pyagnostics/compare/v2.1.0...v3.0.0) (2026-01-26)
+
+
+### ⚠ BREAKING CHANGES
+
+* add multi-source diagnostics ([#110](https://github.com/risqcapital/pyagnostics/issues/110))
+
+### Features
+
+* add multi-source diagnostics ([#110](https://github.com/risqcapital/pyagnostics/issues/110)) ([ca7ebd5](https://github.com/risqcapital/pyagnostics/commit/ca7ebd59c07cff01fce4e1ae668899c4b59acea9))
+
+
+### Bug Fixes
+
+* **deps:** bump rich from 14.2.0 to 14.3.1 ([#112](https://github.com/risqcapital/pyagnostics/issues/112)) ([6ef6959](https://github.com/risqcapital/pyagnostics/commit/6ef6959b9d22a27119bf2e0613d0a1f784089d13))
+
 ## [2.1.0](https://github.com/risqcapital/pyagnostics/compare/v2.0.3...v2.1.0) (2026-01-19)
 
 
