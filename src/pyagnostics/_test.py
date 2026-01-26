@@ -1,7 +1,7 @@
 from pyagnostics.exceptions import DiagnosticError
 from pyagnostics.severity import Severity
 from pyagnostics.source import InMemorySource, attach_diagnostic_source_code
-from pyagnostics.spans import LabeledSpan, SourceSpan
+from pyagnostics.spans import LabeledSpan, SourceId, SourceSpan
 
 
 def fail() -> None:
@@ -21,7 +21,10 @@ def fail() -> None:
 
 def main() -> None:
     try:
-        with attach_diagnostic_source_code(InMemorySource("1 + 1 = 2")):
+        source_id = SourceId()
+        with attach_diagnostic_source_code(
+            InMemorySource("1 + 1 = 2"), source_id=source_id
+        ) as source_id:
             try:
                 fail()
             except Exception as e:
@@ -29,7 +32,7 @@ def main() -> None:
                     severity=Severity.ERROR,
                     code="pyagnostics::test",
                     message="Some error occurred",
-                    labels=[LabeledSpan(SourceSpan(4, 5), "this")],
+                    labels=[LabeledSpan(SourceSpan(4, 5, source_id=source_id), "this")],
                     notes=[
                         "[blue]help:[/blue] You did something dumb",
                         "[green]did you mean:[/green] 1 + 3",

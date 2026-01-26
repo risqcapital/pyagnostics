@@ -22,9 +22,9 @@ from rich.terminal_theme import DIMMED_MONOKAI
 from rich.text import Text
 from rich.traceback import Stack, Traceback
 
-from pyagnostics.protocols import Diagnostic
+from pyagnostics.protocols import Diagnostic, SourceMap
 from pyagnostics.severity import Severity
-from pyagnostics.spans import LabeledSpan, SourceSpan
+from pyagnostics.spans import LabeledSpan, SourceId, SourceSpan
 
 
 @dataclass
@@ -328,24 +328,54 @@ class Report(RichCast):
 
     @group()
     def _render_snippets(self: Self) -> Iterable[RenderableType]:
-        if self.diag.source_code is None or not self.diag.labels:
+        if not self.diag.labels or not isinstance(self.diag, SourceMap):
             return
+        labels_by_source: dict[SourceId, list[LabeledSpan]] = {}
+        for label in self.diag.labels:
+            labels_by_source.setdefault(label.source_id, []).append(label)
 
-        min_char = min(label.span.start for label in self.diag.labels)
-        max_char = max(label.span.end for label in self.diag.labels)
+        for source_id, labels in labels_by_source.items():
+            resolved = self.diag.get_source(source_id)
+            if resolved is None:
+                continue
+            source_code, highlighter = resolved
 
-        span_contents = self.diag.source_code.read_span(SourceSpan(min_char, max_char))
-        if self.diag.highlighter is not None:
-            span_contents = self.diag.highlighter.highlight(span_contents)
+            if not labels:
+                continue
 
-        yield NewLine()
-        yield LabeledSourceBlock(
-            span_contents.text,
-            title=span_contents.name,
-            start_line=span_contents.line,
-            start_char_index=span_contents.span.start,
-            labels=self.diag.labels,
-        )
+            context_spans: list[SourceSpan] = []
+            for label in labels:
+                span_contents = source_code.read_span(
+                    label.span, context_lines_before=2, context_lines_after=2
+                )
+                context_spans.append(
+                    SourceSpan(
+                        span_contents.span.start,
+                        span_contents.span.end,
+                        source_id=span_contents.span.source_id,
+                    )
+                )
+
+            for merged_span in SourceSpan.union(context_spans):
+                span_contents = source_code.read_span(merged_span)
+                if highlighter is not None:
+                    span_contents = highlighter.highlight(span_contents)
+                block_labels = [
+                    label
+                    for label in labels
+                    if label.span.start < merged_span.end
+                    and label.span.end > merged_span.start
+                ]
+                if not block_labels:
+                    continue
+                yield NewLine()
+                yield LabeledSourceBlock(
+                    span_contents.text,
+                    title=span_contents.name,
+                    start_line=span_contents.line,
+                    start_char_index=span_contents.span.start,
+                    labels=block_labels,
+                )
 
     @group()
     def _render_notes(self: Self) -> Iterable[RenderableType]:
