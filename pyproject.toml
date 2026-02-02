@@ -41,7 +41,7 @@ name = "pyagnostics"
 description = ""
 license = "MIT"
 keywords = []
-version = "3.0.0"
+version = "3.0.1"
 dynamic = ["classifiers"]
 readme = "README.md"
 authors = [{name = "RISQ Capital", email = "dev@risqcapital.com"}]
