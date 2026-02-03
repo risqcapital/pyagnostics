@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.1](https://github.com/risqcapital/pyagnostics/compare/v3.0.0...v3.0.1) (2026-02-02)
+
+
+### Bug Fixes
+
+* **deps:** bump rich from 14.3.1 to 14.3.2 ([#114](https://github.com/risqcapital/pyagnostics/issues/114)) ([f9b1456](https://github.com/risqcapital/pyagnostics/commit/f9b1456cdb6ae4a0339b39cc8fc1ffb7a89e71e4))
+
 ## [3.0.0](https://github.com/risqcapital/pyagnostics/compare/v2.1.0...v3.0.0) (2026-01-26)
 
 
